@@ -52,13 +52,7 @@ namespace BattleshipsApp.Pages
     {
         List<Border> Cells;
         SetShipsPage Page;
-        public bool IsReadyActive { get
-            {
-                var array = new int[10, 10];
-                Cells.ForEach(x => array[Grid.GetColumn(x), Grid.GetRow(x)] = (x.DataContext as CellViewModel)!.IsPressed ? 1 : 0);
-                return IsValid(GetBoats(array));
-            }
-        }
+        public bool IsReadyActive { get => IsValid(); }
         public event PropertyChangedEventHandler? PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")
         {
@@ -96,8 +90,9 @@ namespace BattleshipsApp.Pages
             cell.IsPressed = !cell.IsPressed;
             OnPropertyChanged("IsReadyActive");
         }
-        public static bool IsValid(List<Boat> boats)
+        public bool IsValid()
         {
+            var boats = GetBoats();
             if (boats == null)
                 return false;
 
@@ -186,8 +181,10 @@ namespace BattleshipsApp.Pages
 
             return true;
         }
-        public static List<Boat> GetBoats(int[,] field)
+        public List<Boat> GetBoats()
         {
+            var field = new int[10, 10];
+            Cells.ForEach(x => field[Grid.GetColumn(x), Grid.GetRow(x)] = (x.DataContext as CellViewModel)!.IsPressed ? 1 : 0);
             int rows = field.GetLength(0);
             int cols = field.GetLength(1);
             var boats = new List<Boat>();
@@ -257,7 +254,7 @@ namespace BattleshipsApp.Pages
         {
             InitializeComponent();
             Connection = new HubConnectionBuilder()
-                .WithUrl(ApiHandler.BaseSignalUrl + $"?login={Uri.EscapeDataString(ApiHandler.Login ?? "")}&path=cgp")
+                .WithUrl(ApiHandler.BaseSignalUrl + $"?login={Uri.EscapeDataString(ApiHandler.Login ?? "")}&path=SetShips")
                 .Build();
         }
         
@@ -265,13 +262,25 @@ namespace BattleshipsApp.Pages
         {
             ViewModel = new SetShipsViewModel(this);
             DataContext = ViewModel;
+            Connection.On<int>("ShipsSet", x =>
+            {
+                Dispatcher.Invoke(() => TimerTB.Text = x.ToString());
+            });
         }
 
         
         
-        private void ReadyBT_Click(object sender, RoutedEventArgs e)
+        private async void ReadyBT_Click(object sender, RoutedEventArgs e)
         {
-            
+            try
+            {
+                await ApiHandler.PostBoats(ViewModel!.GetBoats());
+                MessageBox.Show("Успешный успех");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }

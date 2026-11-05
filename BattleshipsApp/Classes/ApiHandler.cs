@@ -118,5 +118,10 @@ namespace BattleshipsApp.Classes
         {
             await PostAsync("Game/connect", nickName);
         }
+        public static async Task PostBoats(List<Boat> boats)
+        {
+            await PostAsync("Game/boats", boats);
+        }
+
     }
 }

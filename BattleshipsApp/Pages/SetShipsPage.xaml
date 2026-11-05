@@ -49,6 +49,7 @@
                 
             </Grid>
         </Viewbox>
+        <TextBlock Name="TimerTB" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="40" FontWeight="Bold" Foreground="Red" Grid.Column="1">60</TextBlock>
         <Button Name="ReadyBT" IsEnabled="{Binding IsReadyActive}" Click="ReadyBT_Click" Grid.Row="2" Grid.Column="1" Style="{StaticResource MaterialDesignRaisedDarkButton}" FontSize="20" HorizontalAlignment="Center">Готов</Button>
     </Grid>
 </Page>
