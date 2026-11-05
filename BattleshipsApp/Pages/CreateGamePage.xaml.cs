@@ -25,24 +25,19 @@ namespace BattleshipsApp.Pages
         {
             InitializeComponent();
             Connection = new HubConnectionBuilder()
-                .WithUrl(ApiHandler.BaseSignalUrl + $"?login={Uri.EscapeDataString(ApiHandler.Login ?? "")}")
+                .WithUrl(ApiHandler.BaseSignalUrl + $"?login={Uri.EscapeDataString(ApiHandler.Login ?? "")}&path=CreateGame")
                 .Build();
         }
 
         private async void CancelBT_Click(object sender, RoutedEventArgs e)
         {
-            await ApiHandler.DeleteGame();
+            await Connection.DisposeAsync();
             NavigationService.Navigate(new MainPage());
         }
         HubConnection Connection;
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
             await ApiHandler.CreateGame();
-            
-            Connection.On<string>("Ping", async data => 
-            {
-                await ApiHandler.Ping();
-            });
             Connection.On<string>("OpponentConnected", async data =>
             {
                 Dispatcher.Invoke(()=> NavigationService.Navigate(new SetShipsPage()));

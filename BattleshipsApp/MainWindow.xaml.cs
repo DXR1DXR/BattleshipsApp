@@ -20,8 +20,8 @@ namespace BattleshipsApp
         public MainWindow()
         {
             InitializeComponent();
-            //MainFrame.Navigate(new LoginPage());
-            MainFrame.Navigate(new SetShipsPage());
+            MainFrame.Navigate(new LoginPage());
+            //MainFrame.Navigate(new SetShipsPage());
 
         }
     }

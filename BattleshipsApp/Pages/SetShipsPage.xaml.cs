@@ -1,4 +1,6 @@
-﻿using BattleshipsApp.Model;
+﻿using BattleshipsApp.Classes;
+using BattleshipsApp.Model;
+using Microsoft.AspNetCore.SignalR.Client;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -250,9 +252,13 @@ namespace BattleshipsApp.Pages
     public partial class SetShipsPage : Page
     {
         SetShipsViewModel? ViewModel;
+        HubConnection Connection;
         public SetShipsPage()
         {
             InitializeComponent();
+            Connection = new HubConnectionBuilder()
+                .WithUrl(ApiHandler.BaseSignalUrl + $"?login={Uri.EscapeDataString(ApiHandler.Login ?? "")}&path=cgp")
+                .Build();
         }
         
         private void Page_Loaded(object sender, RoutedEventArgs e)

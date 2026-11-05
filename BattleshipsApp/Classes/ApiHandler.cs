@@ -110,10 +110,6 @@ namespace BattleshipsApp.Classes
         {
             await PostAsync("Game");
         }
-        public static async Task DeleteGame()
-        {
-            await DeleteAsync("Game");
-        }
         public static async Task Ping()
         {
             await GetAsync("Ping");
