@@ -1,0 +1,21 @@
+﻿<Window x:Class="BattleshipsApp.Windows.ChangeNameWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BattleshipsApp.Windows"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d" 
+        TextBlock.FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
+        TextBlock.FontSize="20"
+        TextBlock.FontWeight="Bold"
+        Title="ChangeNameWindow" SizeToContent="WidthAndHeight">
+    <Grid>
+        <StackPanel Orientation="Vertical" Margin="5">
+            <TextBlock>Введите новое имя</TextBlock>
+            <TextBox Name="NameTB" Width="250"></TextBox>
+            <Separator Height="5" Background="Transparent"></Separator>
+            <Button Click="Button_Click" HorizontalAlignment="Right" Style="{DynamicResource MaterialDesignRaisedDarkButton}">Ок</Button>
+        </StackPanel>
+    </Grid>
+</Window>

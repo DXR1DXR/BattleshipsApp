@@ -1,0 +1,26 @@
+﻿<Page x:Class="BattleshipsApp.Pages.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:BattleshipsApp.Pages"
+      mc:Ignorable="d" 
+      FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
+      TextBlock.FontSize="20"
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="MainPage" Background="White" Loaded="Page_Loaded">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <DockPanel LastChildFill="False" Margin="5">
+            <Button Name="CreateGameBT" Click="CreateGameBT_Click" Style="{DynamicResource MaterialDesignRaisedDarkButton}">Создать игру</Button>
+            <Separator Width="5" Background="Transparent"></Separator>
+            <Button x:Name="FindGameBT" Click="FindGameBT_Click" Style="{DynamicResource MaterialDesignRaisedDarkButton}">Найти игру</Button>
+            <Button Name="ProfileBT" Click="ProfileBT_Click" Style="{DynamicResource MaterialDesignRaisedDarkButton}" DockPanel.Dock="Right">Профиль</Button>
+        </DockPanel>
+        <Frame Name="InFrame" Grid.Row="1" NavigationUIVisibility="Hidden"></Frame>
+    </Grid>
+</Page>
