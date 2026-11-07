@@ -1,5 +1,10 @@
-﻿using System;
+﻿using BattleshipsApp.Classes;
+using BattleshipsApp.Model;
+using Microsoft.AspNetCore.SignalR.Client;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,11 +21,108 @@ namespace BattleshipsApp.Pages
     /// <summary>
     /// Логика взаимодействия для GamePage.xaml
     /// </summary>
+    public class GameCellViewModel : INotifyPropertyChanged
+    {
+        public GameCellViewModel(GamePage page)
+        {
+            _IsPressed = false;
+            Page = page;
+        }
+        GamePage Page;
+        bool _IsPressed;
+        public bool IsPressed
+        {
+            get => _IsPressed; set
+            {
+                _IsPressed = value;
+                OnPropertyChanged("Background");
+            }
+        }
+        public SolidColorBrush Background
+        {
+            get =>
+                (SolidColorBrush)(IsPressed ? Page.FindResource("SecondaryDarkBrush") : Page.FindResource("PrimaryHueLightBrush"));
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public void OnPropertyChanged([CallerMemberName] string prop = "")
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(prop));
+        }
+    }
+    public class GamePageViewModel : INotifyPropertyChanged
+    {
+        List<Border> SelfCells;
+        List<Border> OpponentCells;
+        GamePage Page;
+        List<Boat> SelfBoats;
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public void OnPropertyChanged([CallerMemberName] string prop = "")
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(prop));
+        }
+
+        public GamePageViewModel(GamePage page, List<Boat> selfBoats)
+        {
+            SelfBoats = selfBoats;
+            Page = page;
+            SelfCells = new List<Border>();
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    var border = new Border();
+                    border.Style = (Style)page.FindResource("ClickableBorder");
+                    border.Width = 10;
+                    border.Height = 10;
+                    border.Margin = new Thickness(0.25);
+                    border.CornerRadius = new CornerRadius(1);
+                    SelfCells.Add(border);
+                    var vm = new GameCellViewModel(Page);
+                    vm.IsPressed = selfBoats.Any(x => x.Y1 <= j && j <= x.Y2 && x.X1 <= i && i <= x.X2);
+                    border.DataContext = vm;
+                    border.SetBinding(Border.BackgroundProperty, new Binding("Background"));
+                    
+                    //border.MouseLeftButtonUp += Border_MouseLeftButtonUp;
+                    Grid.SetRow(border, i);
+                    Grid.SetColumn(border, j);
+                    page.SelfShipsGrid.Children.Add(border);
+                }
+            }
+        }
+        private void Border_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            CellViewModel cell = ((sender as Border)!.DataContext as CellViewModel)!;
+            cell.IsPressed = !cell.IsPressed;
+            OnPropertyChanged("IsReadyActive");
+        }
+
+    }
     public partial class GamePage : Page
     {
+        GamePageViewModel? ViewModel;
+        HubConnection Connection;
+        List<Boat> SelfBoats;
         public GamePage()
         {
             InitializeComponent();
+            Connection = new HubConnectionBuilder()
+                .WithUrl(ApiHandler.BaseSignalUrl + $"?login={Uri.EscapeDataString(ApiHandler.Login ?? "")}&path=Game")
+                .Build();
+        }
+
+        private async void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            SelfBoats = await ApiHandler.GetBoats();
+            ViewModel = new GamePageViewModel(this, SelfBoats);
+            DataContext = ViewModel;
+            //Connection.On<int>("ShipsSet", x =>
+            //{
+            //    Dispatcher.Invoke(() => TimerTB.Text = x.ToString());
+            //});
+            await Connection.StartAsync();
         }
     }
 }

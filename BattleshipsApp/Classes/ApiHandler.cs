@@ -122,6 +122,10 @@ namespace BattleshipsApp.Classes
         {
             await PostAsync("Game/boats", boats);
         }
+        public static async Task<List<Boat>> GetBoats()
+        {
+            return JsonSerializer.Deserialize<List<Boat>>((await GetAsync("Game/boats")).Item2)!;
+        }
 
     }
 }

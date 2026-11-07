@@ -266,6 +266,12 @@ namespace BattleshipsApp.Pages
             {
                 Dispatcher.Invoke(() => TimerTB.Text = x.ToString());
             });
+            Connection.On<string>("AllShipsSet", x =>
+            {
+                Dispatcher.Invoke(() => NavigationService.Navigate(new GamePage()));
+                Connection.DisposeAsync();
+            });
+            Connection.StartAsync();
         }
 
         
@@ -275,7 +281,7 @@ namespace BattleshipsApp.Pages
             try
             {
                 await ApiHandler.PostBoats(ViewModel!.GetBoats());
-                MessageBox.Show("Успешный успех");
+                ReadyBT.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
