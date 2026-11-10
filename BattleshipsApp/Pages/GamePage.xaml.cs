@@ -56,7 +56,6 @@ namespace BattleshipsApp.Pages
         List<Border> SelfCells;
         List<Border> OpponentCells;
         GamePage Page;
-        List<Boat> SelfBoats;
         public event PropertyChangedEventHandler? PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")
         {
@@ -66,37 +65,50 @@ namespace BattleshipsApp.Pages
 
         public GamePageViewModel(GamePage page, List<Boat> selfBoats)
         {
-            SelfBoats = selfBoats;
             Page = page;
             SelfCells = new List<Border>();
+            OpponentCells = new List<Border>();
+            FillGrid(ref page.SelfShipsGrid, selfBoats);
+            FillGrid(ref page.OpponentShipsGrid, null);
+        }
+        public void FillGrid(ref Grid grid, List<Boat>? boats)
+        {
             for (int i = 0; i < 10; i++)
             {
                 for (int j = 0; j < 10; j++)
                 {
                     var border = new Border();
-                    border.Style = (Style)page.FindResource("ClickableBorder");
+                    border.Style = (Style)Page.FindResource("ClickableBorder");
                     border.Width = 10;
                     border.Height = 10;
                     border.Margin = new Thickness(0.25);
                     border.CornerRadius = new CornerRadius(1);
                     SelfCells.Add(border);
                     var vm = new GameCellViewModel(Page);
-                    vm.IsPressed = selfBoats.Any(x => x.Y1 <= j && j <= x.Y2 && x.X1 <= i && i <= x.X2);
+                    if (boats is not null)
+                        vm.IsPressed = boats.Any(x => x.Y1 <= j && j <= x.Y2 && x.X1 <= i && i <= x.X2);
                     border.DataContext = vm;
                     border.SetBinding(Border.BackgroundProperty, new Binding("Background"));
-                    
-                    //border.MouseLeftButtonUp += Border_MouseLeftButtonUp;
+                    if (boats is null)
+                        border.MouseLeftButtonUp += Border_MouseLeftButtonUp;
                     Grid.SetRow(border, i);
                     Grid.SetColumn(border, j);
-                    page.SelfShipsGrid.Children.Add(border);
+                    grid.Children.Add(border);
                 }
             }
         }
-        private void Border_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private async void Border_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            CellViewModel cell = ((sender as Border)!.DataContext as CellViewModel)!;
-            cell.IsPressed = !cell.IsPressed;
-            OnPropertyChanged("IsReadyActive");
+            var border = (sender as Border)!;
+            var row = Grid.GetRow(border);
+            var column = Grid.GetColumn(border);
+            GameCellViewModel cell = ((sender as Border)!.DataContext as GameCellViewModel)!;
+            //cell.IsPressed = !cell.IsPressed;
+            //OnPropertyChanged("IsReadyActive");
+            var result = await ApiHandler.Shoot(row, column);
+            if (result.IsHit)
+                border.Background = Brushes.Red;
+            (sender as Border).MouseLeftButtonUp -= Border_MouseLeftButtonUp;
         }
 
     }
@@ -118,10 +130,14 @@ namespace BattleshipsApp.Pages
             SelfBoats = await ApiHandler.GetBoats();
             ViewModel = new GamePageViewModel(this, SelfBoats);
             DataContext = ViewModel;
-            //Connection.On<int>("ShipsSet", x =>
-            //{
-            //    Dispatcher.Invoke(() => TimerTB.Text = x.ToString());
-            //});
+            Connection.On<int>("OpponentMissed", x =>
+            {
+                //Dispatcher.Invoke(() => TimerTB.Text = x.ToString());
+            });
+            Connection.On<int>("OpponentHit", x =>
+            {
+                //Dispatcher.Invoke(() => TimerTB.Text = x.ToString());
+            });
             await Connection.StartAsync();
         }
     }

@@ -126,6 +126,10 @@ namespace BattleshipsApp.Classes
         {
             return JsonSerializer.Deserialize<List<Boat>>((await GetAsync("Game/boats")).Item2)!;
         }
+        public static async Task<ShotDTO> Shoot(int x, int y)
+        {
+            return JsonSerializer.Deserialize<ShotDTO>((await PostAsync($"Game/shoot/{x}/{y}")).Item2)!;
+        }
 
     }
 }
