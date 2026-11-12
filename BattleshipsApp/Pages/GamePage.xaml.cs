@@ -56,6 +56,23 @@ namespace BattleshipsApp.Pages
         List<Border> SelfCells;
         List<Border> OpponentCells;
         GamePage Page;
+        bool isMyTurn;
+        public bool IsMyTurn { get => isMyTurn; set
+            {
+                isMyTurn = value;
+                OnPropertyChanged("SelfVisibility");
+                OnPropertyChanged("OpponentVisibility");
+            }
+        }
+        int timeLeft;
+        public int TimeLeft { get => timeLeft; set
+            {
+                timeLeft = value;
+                OnPropertyChanged(nameof(TimeLeft));
+            }
+        }
+        public bool SelfVisibility { get => isMyTurn;}
+        public bool OpponentVisibility { get => !isMyTurn;}
         public event PropertyChangedEventHandler? PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")
         {
@@ -63,9 +80,11 @@ namespace BattleshipsApp.Pages
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));
         }
 
-        public GamePageViewModel(GamePage page, List<Boat> selfBoats)
+        public GamePageViewModel(GamePage page, List<Boat> selfBoats, bool isHost)
         {
             Page = page;
+            isMyTurn = isHost;
+            timeLeft = 30;
             SelfCells = new List<Border>();
             OpponentCells = new List<Border>();
             FillGrid(ref page.SelfShipsGrid, selfBoats);
@@ -105,10 +124,18 @@ namespace BattleshipsApp.Pages
             GameCellViewModel cell = ((sender as Border)!.DataContext as GameCellViewModel)!;
             //cell.IsPressed = !cell.IsPressed;
             //OnPropertyChanged("IsReadyActive");
-            var result = await ApiHandler.Shoot(row, column);
-            if (result.IsHit)
-                border.Background = Brushes.Red;
-            (sender as Border).MouseLeftButtonUp -= Border_MouseLeftButtonUp;
+            try
+            {
+                var result = await ApiHandler.Shoot(row, column);
+                border.Background = result.IsHit ? Brushes.Red : (SolidColorBrush)Page.FindResource("PrimaryHueSuperLightBrush");
+                (sender as Border).Style = (Style)Page.FindResource("InactiveBorder");
+                (sender as Border).MouseLeftButtonUp -= Border_MouseLeftButtonUp;
+            }
+            catch (ApiException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            
         }
 
     }
@@ -117,9 +144,11 @@ namespace BattleshipsApp.Pages
         GamePageViewModel? ViewModel;
         HubConnection Connection;
         List<Boat> SelfBoats;
-        public GamePage()
+        bool IsHost;
+        public GamePage(bool isHost)
         {
             InitializeComponent();
+            IsHost = isHost;
             Connection = new HubConnectionBuilder()
                 .WithUrl(ApiHandler.BaseSignalUrl + $"?login={Uri.EscapeDataString(ApiHandler.Login ?? "")}&path=Game")
                 .Build();
@@ -128,7 +157,7 @@ namespace BattleshipsApp.Pages
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
             SelfBoats = await ApiHandler.GetBoats();
-            ViewModel = new GamePageViewModel(this, SelfBoats);
+            ViewModel = new GamePageViewModel(this, SelfBoats, IsHost);
             DataContext = ViewModel;
             Connection.On<int>("OpponentMissed", x =>
             {

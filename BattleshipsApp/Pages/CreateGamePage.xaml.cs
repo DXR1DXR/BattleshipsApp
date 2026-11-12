@@ -40,7 +40,7 @@ namespace BattleshipsApp.Pages
             await ApiHandler.CreateGame();
             Connection.On<string>("OpponentConnected", async data =>
             {
-                Dispatcher.Invoke(()=> NavigationService.Navigate(new SetShipsPage()));
+                Dispatcher.Invoke(()=> NavigationService.Navigate(new SetShipsPage(true)));
                 await Connection.DisposeAsync();
             });
             await Connection.StartAsync();

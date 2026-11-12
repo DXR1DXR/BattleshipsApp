@@ -250,7 +250,8 @@ namespace BattleshipsApp.Pages
     {
         SetShipsViewModel? ViewModel;
         HubConnection Connection;
-        public SetShipsPage()
+        bool IsHost;
+        public SetShipsPage(bool isHost)
         {
             InitializeComponent();
             Connection = new HubConnectionBuilder()
@@ -268,7 +269,7 @@ namespace BattleshipsApp.Pages
             });
             Connection.On<string>("AllShipsSet", x =>
             {
-                Dispatcher.Invoke(() => NavigationService.Navigate(new GamePage()));
+                Dispatcher.Invoke(() => NavigationService.Navigate(new GamePage(IsHost)));
                 Connection.DisposeAsync();
             });
             Connection.StartAsync();

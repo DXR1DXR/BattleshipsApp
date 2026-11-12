@@ -13,6 +13,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/MaterialDesignColor.DeepPurple.Secondary.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <SolidColorBrush x:Key="PrimaryHueSuperLightBrush" Color="{StaticResource Primary100}"/>
             <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="{StaticResource Primary500}"/>
             <SolidColorBrush x:Key="SecondaryDarkBrush" Color="{StaticResource Secondary700}"/>
             <Style TargetType="Border" x:Key="ClickableBorder">
@@ -20,6 +21,10 @@
                     <Trigger Property="IsMouseOver" Value="True">
                         <Setter Property="Cursor" Value="Hand"></Setter>
                     </Trigger>
+                </Style.Triggers>
+            </Style>
+            <Style TargetType="Border" x:Key="InactiveBorder">
+                <Style.Triggers>
                 </Style.Triggers>
             </Style>
         </ResourceDictionary>

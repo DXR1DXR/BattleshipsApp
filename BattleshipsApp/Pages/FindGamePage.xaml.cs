@@ -67,7 +67,7 @@ namespace BattleshipsApp.Pages
         {
             var nickName = ((sender as ListViewItem)!.DataContext as GameDTO)!.CreatorNickname;
             await ApiHandler.ConnectToGame(nickName);
-            MainNavigationService.Navigate(new SetShipsPage());
+            MainNavigationService.Navigate(new SetShipsPage(false));
         }
     }
 }

@@ -77,6 +77,7 @@
 
             </Grid>
         </Viewbox>
-        <TextBlock Name="TimerTB" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="40" FontWeight="Bold" Foreground="Red" Grid.Column="1">60</TextBlock>
+        <TextBlock Name="OpponentTB" Visibility="{Binding OpponentVisibility}" Text="{Binding StringFormat=Ход противника. Время: {0}, Path=TimeLeft}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="30" FontWeight="Bold" Foreground="Red" Grid.Column="1"></TextBlock>
+        <TextBlock Name="SelfTB" Visibility="{Binding SelfVisibility}" Text="{Binding StringFormat=Ваш ход. Время: {0}, Path=TimeLeft}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="30" FontWeight="Bold" Foreground="Green"></TextBlock>
     </Grid>
 </Page>
