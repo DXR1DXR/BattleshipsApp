@@ -167,6 +167,22 @@ namespace BattleshipsApp.Pages
             {
                 //Dispatcher.Invoke(() => TimerTB.Text = x.ToString());
             });
+            Connection.On<int>("GameTimer", x =>
+            {
+                ViewModel.TimeLeft = x;
+            });
+            Connection.On<string>("GameWon", x =>
+            {
+                MessageBox.Show("Вы победили");
+                Dispatcher.Invoke(() => NavigationService.Navigate(new MainPage()));
+                Connection.DisposeAsync();
+            });
+            Connection.On<string>("GameLost", x =>
+            {
+                MessageBox.Show("Вы проиграли");
+                Dispatcher.Invoke(() => NavigationService.Navigate(new MainPage()));
+                Connection.DisposeAsync();
+            });
             await Connection.StartAsync();
         }
     }

@@ -259,7 +259,7 @@ namespace BattleshipsApp.Pages
                 .Build();
         }
         
-        private void Page_Loaded(object sender, RoutedEventArgs e)
+        private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
             ViewModel = new SetShipsViewModel(this);
             DataContext = ViewModel;
@@ -267,12 +267,13 @@ namespace BattleshipsApp.Pages
             {
                 Dispatcher.Invoke(() => TimerTB.Text = x.ToString());
             });
-            Connection.On<string>("AllShipsSet", x =>
+            Connection.On<string>("AllShipsSet", async x =>
             {
+                await Connection.DisposeAsync();
                 Dispatcher.Invoke(() => NavigationService.Navigate(new GamePage(IsHost)));
-                Connection.DisposeAsync();
+                
             });
-            Connection.StartAsync();
+            await Connection.StartAsync();
         }
 
         
